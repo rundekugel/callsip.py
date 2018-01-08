@@ -2,7 +2,7 @@
 Simple SIP Phone caller. V0.2 
 This small script let's a SIP Phone ring, without register.
 Only ringing is supported, so sound transport until yet.
-<p>
+<pre>
 usage:
 callsip [-v:N|-p:Port|-dS:ec.|-s:Via-server] sip-user-address
 option (default)    , desc.
@@ -20,4 +20,4 @@ examples:
    callsip c:+4930555@x alice@home.net
    #starts a sip call to alice with callerid 004930555.
 
-</p>
+</pre>
