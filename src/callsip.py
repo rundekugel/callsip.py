@@ -24,7 +24,7 @@ def buildSipMsg(action, receiver, viaserver, caller, protocol="TCP", tag="x", ve
   return msg
 
 def show_help():
-  ret= "SIP Phone caller. V0.1p$Rev: 424 $ by lifesim.de"+CRLF
+  ret= "SIP Phone caller. V0.2p by lifesim.de"+CRLF
   ret+= "usage:"+CRLF+"callsip [-v:N|-p:Port|-dS:ec.|-s:Via-server] sip-user-address"+CRLF
   ret+= "option (default)    , desc."+CRLF
   ret+= " -c: (555@caller)    , caller sip-address or phone number"+CRLF
@@ -90,7 +90,8 @@ def txMsg(s,action, receiver, viaserver, caller, tcpudp="TCP", tag="x", verbosit
         break
       tries -=1
       time.sleep(0.05)
-    print("tries:"+str(tries))
+    if verbosity>2:  
+      print("tries:"+str(tries))
   except Exception, e:
     if verbosity:
       print("rx err: "+str(e))
@@ -152,7 +153,7 @@ def callsip(sipadr, caller="555@x", duration=5, viaServer="", port=5060, tag="x"
   if verbosity>1:
     print("Connected to:"+s.getpeername()[0])
   #s.setblocking(0.1)
-  s.settimeout(0.1)
+  s.settimeout(0.2)
  
   #--talk sip
   getCallId(new=True)
