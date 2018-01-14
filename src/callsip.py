@@ -2,7 +2,7 @@
 #$Id: callsip.py 523 2014-11-02 13:21:33Z gaul1 $
 
 '''
-SIP Phone caller. V0.1p$Rev: 424 $ by lifesim.de 
+SIP Phone caller. V0.2p by lifesim.de 
 '''
 import socket
 import sys
@@ -62,10 +62,10 @@ def getCallId(new=0):
     this.cid="c"+hex(int(time.time()*10))
   return this.cid
     
-def txMsg(s,action, receiver, viaserver, caller, protocol="TCP", tag="x", verbosity=0):  
+def txMsg(s,action, receiver, viaserver, caller, tcpudp="TCP", tag="x", verbosity=0):  
   if s==None:
     return -1
-  m=buildSipMsg(action,receiver, viaserver, caller, protocol=protocol, tag=tag)  
+  m=buildSipMsg(action,receiver, viaserver, caller, protocol=tcpudp, tag=tag)  
   if verbosity>2:
     print("<--tx:"+CRLF+m) 
   r=0;rx=""
@@ -80,7 +80,8 @@ def txMsg(s,action, receiver, viaserver, caller, protocol="TCP", tag="x", verbos
         r=s.recv(2048)
       else:
         r,server=recvfrom(2048)
-      print r
+      if verbosity>5:
+        print r
       rx+=r
       if keyw in rx:
         tries=0
@@ -90,9 +91,9 @@ def txMsg(s,action, receiver, viaserver, caller, protocol="TCP", tag="x", verbos
       tries -=1
       time.sleep(0.05)
     print("tries:"+str(tries))
-  except:
+  except Exception, e:
     if verbosity:
-      print("rx error.")
+      print("rx err: "+str(e))
     pass
   if verbosity>3:
     print("received %d bytes:"%len(rx))
@@ -101,47 +102,7 @@ def txMsg(s,action, receiver, viaserver, caller, protocol="TCP", tag="x", verbos
   #todo: parse cseq, tag, cid and validate
   return r
   
-def main():
-  args=sys.argv
-  if len(args)<2:
-    show_help()
-    return 1
-  port=5060
-  caller="555@x"
-  viaServer=""
-  sipadr=""
-  tcpudp="TCP"
-  verbosity=1
-  forceipv6=0
-  tag="x"
-  duration=3
-  #--- parse params
-  for arg in sys.argv:
-    a3=arg[:3]
-    a4=arg[:4]
-    if arg == "-h" or arg=='?':  
-      show_help()
-    elif arg[:3] == "-v:":
-      verbosity = int(arg[3:],10)
-    elif a3 == "-c:":
-      caller=arg[3:]
-    elif a3 == "-d:":
-      duration = int(arg[3:],10)
-    elif a3== "-l:":
-      myUri =arg[3:]
-    elif a3== "-s:":
-      viaServer =arg[3:]
-    elif a3== "-t:":
-      tag =arg[3:]
-    elif a3 == "-p:":
-      port = int(arg[4:],10)
-    elif arg=="-u":
-      tcpudp="UDP"
-    elif arg=="-6":
-      forceipv6=1
-    elif arg[0]!="-":
-      sipadr=arg
-  #---
+def callsip(sipadr, caller="555@x", duration=5, viaServer="", port=5060, tag="x", tcpudp="TCP", forceipv6=0, verbosity=0):  
   if viaServer=="":
     v=sipadr.split("@")
     if len(v)<2:
@@ -198,13 +159,58 @@ def main():
   getseq(reset=True)
   #if port!=5060:
     #viaServer=viaServer+":"+str(port)
-  r=txMsg(s,"INVITE", sipadr, viaServer, caller, protocol=tcpudp, tag=tag, verbosity=verbosity)   
+  r=txMsg(s,"INVITE", sipadr, viaServer, caller, tcpudp=tcpudp, tag=tag, verbosity=verbosity)   
   time.sleep(duration)
   getseq(inc=True)
-  r=txMsg(s,"BYE", sipadr, viaServer, caller, protocol=tcpudp, tag=tag, verbosity=verbosity)   
+  r=txMsg(s,"BYE", sipadr, viaServer, caller, tcpudp=tcpudp, tag=tag, verbosity=verbosity)   
   #s.shutdown()
   s.close()  
-    
+  return 0
+      
+def main():
+  args=sys.argv
+  if len(args)<2:
+    show_help()
+    return 1
+  port=5060
+  caller="555@x"
+  viaServer=""
+  sipadr=""
+  tcpudp="TCP"
+  verbosity=1
+  forceipv6=0
+  tag="x"
+  duration=3
+  #--- parse params
+  for arg in sys.argv:
+    a3=arg[:3]
+    a4=arg[:4]
+    if arg == "-h" or arg=='?':  
+      show_help()
+    elif arg[:3] == "-v:":
+      verbosity = int(arg[3:],10)
+    elif a3 == "-c:":
+      caller=arg[3:]
+    elif a3 == "-d:":
+      duration = int(arg[3:],10)
+    elif a3== "-l:":
+      myUri =arg[3:]
+    elif a3== "-s:":
+      viaServer =arg[3:]
+    elif a3== "-t:":
+      tag =arg[3:]
+    elif a3 == "-p:":
+      port = int(arg[4:],10)
+    elif arg=="-u":
+      tcpudp="UDP"
+    elif arg=="-6":
+      forceipv6=1
+    elif arg[0]!="-":
+      sipadr=arg
+  #---
+  r=callsip(sipadr, caller=caller, duration=duration, viaServer=viaServer, port=port, 
+            tag=tag, tcpudp=tcpudp, forceipv6=forceipv6,verbosity=verbosity)
+  
 if __name__ == "__main__":
   main()
   
