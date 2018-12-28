@@ -79,7 +79,7 @@ def txMsg(s,action, receiver, viaserver, caller, tcpudp="TCP", tag="x", verbosit
       if tcpudp=="TCP":
         r=s.recv(2048)
       else:
-        r,server=recvfrom(2048)
+        r,server=s.recvfrom(2048)
       if verbosity>5:
         print r
       rx+=r
