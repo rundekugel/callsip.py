@@ -2,7 +2,7 @@
 #$Id: callsip.py 523 2014-11-02 13:21:33Z gaul1 $
 
 '''
-SIP Phone caller. V0.2p by lifesim.de 
+SIP Phone caller. V0.3 by lifesim.de 
 '''
 import socket
 import sys
@@ -113,7 +113,7 @@ def callsip(sipadr, caller="555@x", duration=5, viaServer="", port=5060, tag="x"
   if len(v)<2:
     caller+="@x"
   if verbosity>0:
-    print("SIP Phone caller. V0.1-$Rev: 424 $")
+    print("SIP Phone caller. V0.3-$Rev: 424 $")
     print("duration=["+str(duration)+"]")
     print("verbose=["+str(verbosity)+"]")
     print("receiver-sipaddress=["+sipadr+"]")
