@@ -24,7 +24,7 @@ def buildSipMsg(action, receiver, viaserver, caller, protocol="TCP", tag="x", ve
   return msg
 
 def show_help():
-  ret= "SIP Phone caller. V0.2p by lifesim.de"+CRLF
+  ret= "SIP Phone caller. V0.3 by lifesim.de"+CRLF
   ret+= "usage:"+CRLF+"callsip [-v:N|-p:Port|-dS:ec.|-s:Via-server] sip-user-address"+CRLF
   ret+= "option (default)    , desc."+CRLF
   ret+= " -c: (555@caller)    , caller sip-address or phone number"+CRLF
