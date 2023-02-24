@@ -1,14 +1,30 @@
 #!/usr/bin/env python
-#$Id: callsip.py 523 2014-11-02 13:21:33Z gaul1 $
 
 '''
-SIP Phone caller. V0.3 by lifesim.de 
+SIP Phone caller. V0.4 by lifesim.de
+usage:
+callsip [-v:N|-p:Port|-dS:ec.|-s:Via-server] sip-user-address
+option (default)    , desc.
+ -c: (555@caller)    , caller sip-address or phone number
+ -d: (5)             , duration(sec.)
+ -l: (na)            , own ip or URI
+ -p: (5060)          , port
+ -s: (from address)  , via-server ip or URI
+ -u  (),             , use UDP instead of TCP
+ -v: (0)             , verboselevel 0..4
+
+examples:
+   callsip -d:3 alice@home.net
+   #starts a sip call to alice and hangs up after 3 sec.
+   callsip c:+4930555@x alice@home.net
+   #starts a sip call to alice with callerid 004930555.
 '''
 import os
 import socket
 import sys
 import time
 
+__version__ = "0.4"
 CRLF="\r\n"
 
 #---
@@ -25,25 +41,7 @@ def buildSipMsg(action, receiver, viaserver, caller, protocol="TCP", tag="x", ve
   return msg
 
 def show_help():
-  ret= "SIP Phone caller. V0.3 by lifesim.de"+CRLF
-  ret+= "usage:"+CRLF+"callsip [-v:N|-p:Port|-dS:ec.|-s:Via-server] sip-user-address"+CRLF
-  ret+= "option (default)    , desc."+CRLF
-  ret+= " -c: (555@caller)    , caller sip-address or phone number"+CRLF
-  ret+= " -d: (5)             , duration(sec.)"+CRLF
-  ret+= " -l: (na)            , own ip or URI"+CRLF
-  ret+= " -p: (5060)          , port"+CRLF
-  ret+= " -s: (from address)  , via-server ip or URI"+CRLF
-  ret+= " -u  (),             , use UDP instead of TCP"+CRLF
-  ret+= " -v: (0)             , verboselevel 0..4"+CRLF
-  ret+= CRLF
-  ret+= "examples:"+CRLF
-  ret+= "   callsip -d:3 alice@home.net"+CRLF
-  ret+= "   #starts a sip call to alice and hangs up after 3 sec."+CRLF
-  ret+= "   callsip c:+4930555@x alice@home.net"+CRLF
-  ret+= "   #starts a sip call to alice with callerid 004930555."+CRLF
-  print(ret)
-  return ret
-
+  print(__doc__)
 
 def getseq(reset=0, inc=True):
   this=getseq
@@ -80,11 +78,10 @@ def txMsg(s,action, receiver, viaserver, caller, tcpudp="TCP", tag="x", verbosit
       if tcpudp=="TCP":
         r=s.recv(2048)
       else:
-
         r,server=s.recvfrom(2048)
       if verbosity>5:
         print(r)
-      rx+=r
+      rx+=r.decode()
       if keyw in rx:
         tries=0
         if verbosity>2:
@@ -115,7 +112,7 @@ def callsip(sipadr, caller="555@x", duration=5, viaServer="", port=5060, tag="x"
   if len(v)<2:
     caller+="@x"
   if verbosity>0:
-    print("SIP Phone caller. V0.3-$Rev: 424 $")
+    print("SIP Phone caller. V"+__version__)
     print("duration=["+str(duration)+"]")
     print("verbose=["+str(verbosity)+"]")
     print("receiver-sipaddress=["+sipadr+"]")
@@ -186,24 +183,25 @@ def main():
   duration=3
   #--- parse params
   for arg in sys.argv:
+    a2=arg[:2]
     a3=arg[:3]
     a4=arg[:4]
     if arg == "-h" or arg=='?':  
       show_help()
-    elif arg[:3] == "-v:":
+    elif a2 == "-v":
       verbosity = int(arg[3:],10)
-    elif a3 == "-c:":
+    elif a2 == "-c":
       caller=arg[3:]
-    elif a3 == "-d:":
+    elif a2 == "-d":
       duration = int(arg[3:],10)
-    elif a3== "-l:":
+    elif a2 == "-l":
       myUri =arg[3:]
-    elif a3== "-s:":
+    elif a2 == "-s":
       viaServer =arg[3:]
-    elif a3== "-t:":
+    elif a2 == "-t":
       tag =arg[3:]
-    elif a3 == "-p:":
-      port = int(arg[4:],10)
+    elif a2 == "-p":
+      port = int(arg[3:],10)
     elif arg=="-u":
       tcpudp="UDP"
     elif arg=="-6":
