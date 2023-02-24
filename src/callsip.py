@@ -4,6 +4,7 @@
 '''
 SIP Phone caller. V0.3 by lifesim.de 
 '''
+import os
 import socket
 import sys
 import time
@@ -67,12 +68,12 @@ def txMsg(s,action, receiver, viaserver, caller, tcpudp="TCP", tag="x", verbosit
     return -1
   m=buildSipMsg(action,receiver, viaserver, caller, protocol=tcpudp, tag=tag)  
   if verbosity>2:
-    print("<--tx:"+CRLF+m) 
+    print("<--tx:"+os.linesep+m)
   r=0;rx=""
   tries=100
   keyw="Content-Length"
   try:
-    r=s.send(m)
+    r=s.send(m.encode())
     if verbosity>3:
       print("sent %d bytes:"%r)
     while tries:
@@ -82,7 +83,7 @@ def txMsg(s,action, receiver, viaserver, caller, tcpudp="TCP", tag="x", verbosit
 
         r,server=s.recvfrom(2048)
       if verbosity>5:
-        print r
+        print(r)
       rx+=r
       if keyw in rx:
         tries=0
@@ -93,14 +94,14 @@ def txMsg(s,action, receiver, viaserver, caller, tcpudp="TCP", tag="x", verbosit
       time.sleep(0.05)
     if verbosity>2:  
       print("tries:"+str(tries))
-  except Exception, e:
+  except Exception as e:
     if verbosity:
       print("rx err: "+str(e))
     pass
   if verbosity>3:
     print("received %d bytes:"%len(rx))
   if verbosity>1:
-    print("-->rx:"+CRLF+rx)  
+    print("-->rx:"+os.linesep+rx)
   #todo: parse cseq, tag, cid and validate
   return r
   
@@ -125,7 +126,7 @@ def callsip(sipadr, caller="555@x", duration=5, viaServer="", port=5060, tag="x"
 
   #--- open connection to send sip
   if verbosity:
-    print "Connecting to " + viaServer +":"+str(port)  
+    print("Connecting to " + viaServer +":"+str(port))
   if tcpudp=="TCP":
     protocol=socket.SOCK_STREAM
   else:
@@ -143,14 +144,14 @@ def callsip(sipadr, caller="555@x", duration=5, viaServer="", port=5060, tag="x"
       s = socket.socket(socket.AF_INET6, protocol, 0)
     except:
       pass
-  #print "done."
+  #print ("done.")
   try:
     r=s.connect((viaServer, port))
   except:
     if verbosity:
       print("no connect!")
       return -1
-  #print r,s
+  #print (r,s)
   if verbosity>1:
     print("Connected to:"+s.getpeername()[0])
   #s.setblocking(0.1)
