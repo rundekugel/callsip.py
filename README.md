@@ -1,5 +1,5 @@
 # callsip.py
-Simple SIP Phone caller. V0.2 
+Simple SIP Phone ringer. V0.2 
 This small script let's a SIP Phone ring, without register.
 Only ringing is supported, no sound transport until yet.
 <pre>
